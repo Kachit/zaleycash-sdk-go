@@ -1,4 +1,4 @@
-#ZaleyCash API SDK GO (Unofficial)
+# ZaleyCash API SDK GO (Unofficial)
 
 ## Description
 Unofficial ZaleyCash API Client for Go
