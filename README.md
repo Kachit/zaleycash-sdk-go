@@ -1,4 +1,5 @@
 # ZaleyCash API SDK GO (Unofficial)
+[![Build Status](https://travis-ci.org/Kachit/zaleycash-sdk-go.svg?branch=main)](https://travis-ci.org/Kachit/zaleycash-sdk-go)
 
 ## Description
 Unofficial ZaleyCash API Client for Go
