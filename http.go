@@ -153,10 +153,15 @@ func (r *Response) Unmarshal(v interface{}) error {
 }
 
 func (r *Response) GetError() (*ErrorResult, error) {
-	var result ErrorResult
-	err := r.Unmarshal(&result)
+	data, err := r.ReadBody()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Response@GetError read body: %v", err)
+	}
+
+	var result ErrorResult
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return nil, fmt.Errorf("Response@GetError Unmarshal: %v", err)
 	}
 	return &result, nil
 }
