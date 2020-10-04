@@ -8,12 +8,18 @@ import (
 )
 
 func BuildStubConfig() *Config {
-	cfg := &Config{
+	return &Config{
 		Uri:       "https://github.com",
 		PublicKey: "PublicKey",
 		SecretKey: "SecretKey",
 	}
-	return cfg
+}
+
+func BuildStubToken() *Token {
+	return &Token{
+		AccessToken: "AccessToken",
+		ExpiresAt:   100,
+	}
 }
 
 func LoadStubResponseData(path string) ([]byte, error) {

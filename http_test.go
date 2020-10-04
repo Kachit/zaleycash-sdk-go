@@ -1,8 +1,10 @@
 package zaleycash_sdk
 
 import (
+	"encoding/json"
 	"github.com/jarcoal/httpmock"
 	"net/http"
+	"time"
 
 	//"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -55,13 +57,43 @@ func Test_HTTP_RequestBuilder_BuildBody(t *testing.T) {
 	assert.NotEmpty(t, body)
 }
 
+func Test_HTTP_RequestBuilder_IsValidToken(t *testing.T) {
+	cfg := BuildStubConfig()
+	builder := RequestBuilder{cfg: cfg}
+	assert.True(t, builder.isValidToken())
+}
+
+func Test_HTTP_RequestBuilderAuthenticated_IsValidTokenSuccess(t *testing.T) {
+	cfg := BuildStubConfig()
+	token := BuildStubToken()
+	token.ExpiresAt = int(time.Now().Unix() + 1000)
+	builder := RequestBuilderAuthenticated{RequestBuilder: &RequestBuilder{cfg: cfg}, token: token}
+	assert.True(t, builder.isValidToken())
+}
+
+func Test_HTTP_RequestBuilderAuthenticated_IsValidTokenExpired(t *testing.T) {
+	cfg := BuildStubConfig()
+	token := BuildStubToken()
+	token.ExpiresAt = int(time.Now().Unix() - 1000)
+	builder := RequestBuilderAuthenticated{RequestBuilder: &RequestBuilder{cfg: cfg}, token: token}
+	assert.False(t, builder.isValidToken())
+}
+
+func Test_HTTP_RequestBuilderAuthenticated_IsValidTokenEmpty(t *testing.T) {
+	cfg := BuildStubConfig()
+	token := BuildStubToken()
+	token.AccessToken = ""
+	builder := RequestBuilderAuthenticated{RequestBuilder: &RequestBuilder{cfg: cfg}, token: token}
+	assert.False(t, builder.isValidToken())
+}
+
 func Test_HTTP_NewHttpTransport(t *testing.T) {
 	cfg := BuildStubConfig()
 	transport := NewHttpTransport(cfg, nil)
 	assert.NotEmpty(t, transport)
 }
 
-func Test_HTTP_Transport_Request(t *testing.T) {
+func Test_HTTP_Transport_RequestSuccess(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -116,13 +148,24 @@ func Test_HTTP_Response_IsSuccessFalse(t *testing.T) {
 	assert.False(t, response.IsSuccess())
 }
 
-func Test_HTTP_GetRawResponse(t *testing.T) {
+func Test_HTTP_Response_GetRawResponse(t *testing.T) {
 	rsp := BuildStubResponseFromFile(http.StatusOK, "stubs/data/auth/token.success.json")
 	response := &Response{raw: rsp}
-	assert.NotEmpty(t, response.GetRawResponse())
+	raw := response.GetRawResponse()
+	assert.NotEmpty(t, raw)
+	assert.Equal(t, http.StatusOK, raw.StatusCode)
 }
 
-func Test_HTTP_GetError(t *testing.T) {
+func Test_HTTP_Response_Unmarshal(t *testing.T) {
+	rsp := BuildStubResponseFromFile(http.StatusBadRequest, "stubs/data/auth/token.success.json")
+	response := &Response{raw: rsp}
+	var result Token
+	_ = response.Unmarshal(&result)
+	assert.Equal(t, "foo", result.AccessToken)
+	assert.Equal(t, 1601644827, result.ExpiresAt)
+}
+
+func Test_HTTP_Response_GetError(t *testing.T) {
 	rsp := BuildStubResponseFromFile(http.StatusBadRequest, "stubs/data/auth/token.invalid.json")
 	response := &Response{raw: rsp}
 	result, _ := response.GetError()
@@ -130,14 +173,40 @@ func Test_HTTP_GetError(t *testing.T) {
 	assert.Equal(t, 1, result.Code)
 }
 
-func Test_HTTP_GetRawBody(t *testing.T) {
+func Test_HTTP_Response_UnmarshalError(t *testing.T) {
+	rsp := BuildStubResponseFromFile(http.StatusBadRequest, "stubs/data/auth/token.invalid.json")
+	response := &Response{raw: rsp}
+	var result ErrorResult
+	_ = response.UnmarshalError(&result)
+	assert.Equal(t, "Unknown access token", result.Message)
+	assert.Equal(t, 1, result.Code)
+}
+
+func Test_HTTP_Response_GetRawBody(t *testing.T) {
+	data, _ := LoadStubResponseData("stubs/data/auth/token.success.json")
 	rsp := BuildStubResponseFromFile(http.StatusBadRequest, "stubs/data/auth/token.success.json")
 	response := &Response{raw: rsp}
-	assert.NotEmpty(t, response.GetRawBody())
+	assert.Equal(t, string(data), response.GetRawBody())
 }
 
 func Test_HTTP_NewResponse(t *testing.T) {
 	rsp := BuildStubResponseFromFile(http.StatusOK, "stubs/data/auth/token.success.json")
 	response := NewResponse(rsp)
 	assert.NotEmpty(t, response)
+}
+
+func Test_HTTP_ResultPayloadType_UnmarshalJSON(t *testing.T) {
+	data, _ := json.Marshal(BuildStubToken())
+	payload := &ResultPayloadType{}
+	_ = payload.UnmarshalJSON(data)
+	assert.Equal(t, `{"access_token":"AccessToken","expires_at":100}`, payload.Payload)
+}
+
+func Test_HTTP_ResultPayloadType_Unmarshal(t *testing.T) {
+	token := &Token{}
+	payload := &ResultPayloadType{}
+	payload.Payload = `{"access_token":"AccessToken","expires_at":100}`
+	_ = payload.Unmarshal(&token)
+	assert.Equal(t, "AccessToken", token.AccessToken)
+	assert.Equal(t, 100, token.ExpiresAt)
 }
