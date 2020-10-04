@@ -153,17 +153,25 @@ func (r *Response) Unmarshal(v interface{}) error {
 }
 
 func (r *Response) GetError() (*ErrorResult, error) {
-	data, err := r.ReadBody()
-	if err != nil {
-		return nil, fmt.Errorf("Response@GetError read body: %v", err)
-	}
-
 	var result ErrorResult
-	err = json.Unmarshal(data, &result)
+	err := r.UnmarshalError(&result)
 	if err != nil {
 		return nil, fmt.Errorf("Response@GetError Unmarshal: %v", err)
 	}
 	return &result, nil
+}
+
+func (r *Response) UnmarshalError(errorResult *ErrorResult) error {
+	data, err := r.ReadBody()
+	if err != nil {
+		return fmt.Errorf("Response@UnmarshalError read body: %v", err)
+	}
+
+	err = json.Unmarshal(data, &errorResult)
+	if err != nil {
+		return fmt.Errorf("Response@UnmarshalError Unmarshal: %v", err)
+	}
+	return nil
 }
 
 func (r *Response) UnmarshalData(data []byte, v interface{}) error {

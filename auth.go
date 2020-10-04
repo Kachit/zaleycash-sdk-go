@@ -1,6 +1,8 @@
 package zaleycash_sdk
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -42,4 +44,24 @@ func NewAuthFromCredentials(secretKey string, publicKey string, cl *http.Client)
 
 func (a *Auth) GetToken() (*Response, error) {
 	return a.Post("api/v2/token", nil, nil)
+}
+
+func (a *Auth) GetTokenStruct() (*Token, error) {
+	response, err := a.GetToken()
+	if err != nil {
+		return nil, fmt.Errorf("Auth@GetTokenStruct roken reauest error: %v", err)
+	}
+	if !response.IsSuccess() {
+		respError, err := response.GetError()
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(respError.Message)
+	}
+	var token Token
+	err = response.Unmarshal(token)
+	if err != nil {
+		return nil, err
+	}
+	return &token, err
 }
