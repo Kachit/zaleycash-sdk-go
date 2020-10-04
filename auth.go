@@ -49,19 +49,19 @@ func (a *Auth) GetToken() (*Response, error) {
 func (a *Auth) GetTokenStruct() (*Token, error) {
 	response, err := a.GetToken()
 	if err != nil {
-		return nil, fmt.Errorf("Auth@GetTokenStruct roken reauest error: %v", err)
+		return nil, fmt.Errorf("Auth@GetTokenStruct token request error: %v", err)
 	}
 	if !response.IsSuccess() {
 		respError, err := response.GetError()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Auth@GetTokenStruct parse error result: %v", err)
 		}
-		return nil, errors.New(respError.Message)
+		return nil, errors.New("Auth@GetTokenStruct " + respError.Message)
 	}
 	var token Token
-	err = response.Unmarshal(token)
+	err = response.Unmarshal(&token)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Auth@GetTokenStruct unmarshal token: %v", err)
 	}
-	return &token, err
+	return &token, nil
 }
