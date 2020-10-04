@@ -1,6 +1,7 @@
 # ZaleyCash API SDK GO (Unofficial)
 [![Build Status](https://travis-ci.org/Kachit/zaleycash-sdk-go.svg?branch=main)](https://travis-ci.org/Kachit/zaleycash-sdk-go)
 [![codecov](https://codecov.io/gh/Kachit/zaleycash-sdk-go/branch/main/graph/badge.svg?token=81py9uxbmw)](https://codecov.io/gh/Kachit/zaleycash-sdk-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kachit/zaleycash-sdk-go)](https://goreportcard.com/report/github.com/kachit/zaleycash-sdk-go)
 [![Release](https://img.shields.io/github/v/release/Kachit/zaleycash-sdk-go.svg)](https://github.com/Kachit/zaleycash-sdk-go/releases)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/kachit/zaleycash-sdk-go/blob/master/LICENSE)
 
