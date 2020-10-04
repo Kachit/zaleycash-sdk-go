@@ -51,6 +51,10 @@ func (a *Auth) GetTokenStruct() (*Token, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Auth@GetTokenStruct token request error: %v", err)
 	}
+	return a.HandleTokenStruct(response)
+}
+
+func (a *Auth) HandleTokenStruct(response *Response) (*Token, error) {
 	if !response.IsSuccess() {
 		respError, err := response.GetError()
 		if err != nil {
@@ -59,7 +63,7 @@ func (a *Auth) GetTokenStruct() (*Token, error) {
 		return nil, errors.New("Auth@GetTokenStruct " + respError.Message)
 	}
 	var token Token
-	err = response.Unmarshal(&token)
+	err := response.Unmarshal(&token)
 	if err != nil {
 		return nil, fmt.Errorf("Auth@GetTokenStruct unmarshal token: %v", err)
 	}

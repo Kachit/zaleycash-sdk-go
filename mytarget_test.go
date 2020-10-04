@@ -30,7 +30,7 @@ func Test_Resource_MyTarget_TokenIsValidFailExpired(t *testing.T) {
 	assert.False(t, token.IsValid())
 }
 
-func Test_ZaleyCash_SDK_MyTarget_TokenIsValidFailEmpty(t *testing.T) {
+func Test_Resource_MyTarget__TokenIsValidFailEmpty(t *testing.T) {
 	expired := time.Now().Unix() + 1000
 	token := MyTargetToken{ExpiresIn: float64(expired)}
 	assert.False(t, token.IsValid())

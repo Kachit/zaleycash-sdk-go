@@ -23,15 +23,33 @@ package main
 import (
 	zaleycash_sdk "github.com/kachit/zaleycash-sdk-go"
 	"net/http"
+	"fmt"
 )
 
 func main(){
 	httpClient :=&http.Client{}
-	config := zaleycash_sdk.NewConfig("secret-key", "public-key")
-	auth := zaleycash_sdk.NewAuthFromConfig(config, httpClient)
-	token, _ := auth.GetTokenStruct()
-
-	client := zaleycash_sdk.NewClientFromConfig(config, token, httpClient)
-	client.MyTarget()
+    	config := zaleycash_sdk.NewConfig("secret-key", "public-key")
+    	auth := zaleycash_sdk.NewAuthFromConfig(config, httpClient)
+    	response, err := auth.GetToken()
+    	if err != nil {
+    		fmt.Println(err)
+    	}
+    	if !response.IsSuccess() {
+    		fmt.Println(response.GetError())
+    	}
+    
+    	var token zaleycash_sdk.Token
+    	err = response.Unmarshal(&token)
+    
+    	client := zaleycash_sdk.NewClientFromConfig(config, &token, httpClient)
+    	
+    	//get myTarget token
+    	response, err = client.MyTarget().GetToken("myTarget-account-id")
+    	if err != nil {
+    		fmt.Println(err)
+    	}
+    	if !response.IsSuccess() {
+    		fmt.Println(response.GetError())
+    	}
 }
 ```

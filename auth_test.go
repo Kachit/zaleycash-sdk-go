@@ -2,6 +2,7 @@ package zaleycash_sdk
 
 import (
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -44,4 +45,28 @@ func Test_Auth_NewAuthFromConfig(t *testing.T) {
 func Test_Auth_NewAuthFromCredentials(t *testing.T) {
 	auth := NewAuthFromCredentials("secret-key", "public-key", nil)
 	assert.NotEmpty(t, auth)
+}
+
+func Test_Auth_HandleTokenStructSuccess(t *testing.T) {
+	rsp := BuildStubResponseFromFile(http.StatusOK, "stubs/data/auth/token.success.json")
+	auth := NewAuthFromConfig(BuildStubConfig(), nil)
+	token, _ := auth.HandleTokenStruct(&Response{raw: rsp})
+	assert.Equal(t, "foo", token.AccessToken)
+	assert.Equal(t, 1601644827, token.ExpiresAt)
+}
+
+func Test_Auth_HandleTokenStructBadRequest(t *testing.T) {
+	rsp := BuildStubResponseFromFile(http.StatusBadRequest, "stubs/data/auth/token.invalid.json")
+	auth := NewAuthFromConfig(BuildStubConfig(), nil)
+	_, err := auth.HandleTokenStruct(&Response{raw: rsp})
+	assert.Error(t, err)
+	assert.Equal(t, "Auth@GetTokenStruct Unknown access token", err.Error())
+}
+
+func Test_Auth_HandleTokenStructUnmarshalError(t *testing.T) {
+	rsp := BuildStubResponseFromFile(http.StatusOK, "stubs/data/auth/token.invalid.json")
+	auth := NewAuthFromConfig(BuildStubConfig(), nil)
+	_, err := auth.HandleTokenStruct(&Response{raw: rsp})
+	assert.Error(t, err)
+	assert.Equal(t, "Auth@GetTokenStruct unmarshal token: ResultPayloadType@Unmarshal parse json error: unexpected end of JSON input", err.Error())
 }

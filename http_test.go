@@ -87,6 +87,17 @@ func Test_HTTP_RequestBuilderAuthenticated_IsValidTokenEmpty(t *testing.T) {
 	assert.False(t, builder.isValidToken())
 }
 
+func Test_HTTP_RequestBuilderAuthenticated_BuildHeaders(t *testing.T) {
+	cfg := BuildStubConfig()
+	token := BuildStubToken()
+	builder := RequestBuilderAuthenticated{RequestBuilder: &RequestBuilder{cfg: cfg}, token: token}
+
+	headers := builder.buildHeaders()
+	assert.NotEmpty(t, headers)
+	assert.Equal(t, "application/json", headers.Get("Content-Type"))
+	assert.Equal(t, "Bearer "+token.AccessToken, headers.Get("Authorization"))
+}
+
 func Test_HTTP_NewHttpTransport(t *testing.T) {
 	cfg := BuildStubConfig()
 	transport := NewHttpTransport(cfg, nil)
@@ -157,7 +168,7 @@ func Test_HTTP_Response_GetRawResponse(t *testing.T) {
 }
 
 func Test_HTTP_Response_Unmarshal(t *testing.T) {
-	rsp := BuildStubResponseFromFile(http.StatusBadRequest, "stubs/data/auth/token.success.json")
+	rsp := BuildStubResponseFromFile(http.StatusOK, "stubs/data/auth/token.success.json")
 	response := &Response{raw: rsp}
 	var result Token
 	_ = response.Unmarshal(&result)
