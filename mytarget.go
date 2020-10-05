@@ -2,11 +2,14 @@ package zaleycash_sdk
 
 import "time"
 
-type MyTarget struct {
+type MyTargetResource struct {
 	*ResourceAbstract
 }
 
-func (m *MyTarget) GetToken(accountId string) (*Response, error) {
+/**
+ * @unmarshal MyTargetToken
+ */
+func (m *MyTargetResource) GetToken(accountId string) (*Response, error) {
 	body := make(map[string]interface{})
 	body["account_id"] = accountId
 	return m.Post("api/v2/my_target/token", body, nil)

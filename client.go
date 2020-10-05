@@ -14,6 +14,10 @@ func NewClientFromConfig(config *Config, token *Token, cl *http.Client) *Client 
 	return &Client{transport}
 }
 
-func (c *Client) MyTarget() *MyTarget {
-	return &MyTarget{ResourceAbstract: NewResourceAbstract(c.transport)}
+func (c *Client) MyTarget() *MyTargetResource {
+	return &MyTargetResource{ResourceAbstract: NewResourceAbstract(c.transport)}
+}
+
+func (c *Client) Users() *UsersResource {
+	return &UsersResource{ResourceAbstract: NewResourceAbstract(c.transport)}
 }

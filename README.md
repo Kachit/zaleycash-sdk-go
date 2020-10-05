@@ -28,10 +28,13 @@ import (
 )
 
 func main(){
+        //init auth
 	httpClient :=&http.Client{}
     	config := zaleycash_sdk.NewConfig("secret-key", "public-key")
     	auth := zaleycash_sdk.NewAuthFromConfig(config, httpClient)
-    	response, err := auth.GetToken()
+    	
+        //authenticate
+        response, err := auth.GetToken()
     	if err != nil {
     		fmt.Println(err)
     	}
@@ -42,15 +45,23 @@ func main(){
     	var token zaleycash_sdk.Token
     	err = response.Unmarshal(&token)
     
+        //init client
     	client := zaleycash_sdk.NewClientFromConfig(config, &token, httpClient)
     	
-    	//get myTarget token
-    	response, err = client.MyTarget().GetToken("myTarget-account-id")
+    	//get user balance
+    	response, err = client.Users().GetBalance()
     	if err != nil {
     		fmt.Println(err)
     	}
     	if !response.IsSuccess() {
     		fmt.Println(response.GetError())
     	}
+
+        var balance zaleycash_sdk.Balance
+        err = response.Unmarshal(&balance)
+        if !response.IsSuccess() {
+            fmt.Println(err)
+        }
+        fmt.Println(balance)
 }
 ```

@@ -42,6 +42,9 @@ func NewAuthFromCredentials(secretKey string, publicKey string, cl *http.Client)
 	return &Auth{ResourceAbstract: NewResourceAbstract(transport)}
 }
 
+/**
+ * @unmarshal Token
+ */
 func (a *Auth) GetToken() (*Response, error) {
 	return a.Post("api/v2/token", nil, nil)
 }
