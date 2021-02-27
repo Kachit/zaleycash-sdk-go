@@ -1,3 +1,3 @@
-package zaleycash_sdk
+package zaleycash
 
 const ProdAPIUrl = "https://zaleycash.com"

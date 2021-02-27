@@ -1,4 +1,4 @@
-package zaleycash_sdk
+package zaleycash
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package zaleycash_sdk
+package zaleycash
 
 type Config struct {
 	Uri       string
